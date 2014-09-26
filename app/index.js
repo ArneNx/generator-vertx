@@ -1,54 +1,66 @@
 'use strict';
-var util = require('util');
-var path = require('path');
+// var util = require('util');
+// var path = require('path');
 var yeoman = require('yeoman-generator');
 var yosay = require('yosay');
 
 var VertxGenerator = yeoman.generators.Base.extend({
-  initializing: function () {
+  initializing: function() {
     this.pkg = require('../package.json');
   },
 
-  prompting: function () {
+  prompting: function() {
     var done = this.async();
 
     // Have Yeoman greet the user.
     this.log(yosay(
-      'Welcome to the outstanding Vertx generator!'
+      'Welcome to the Vertx generator!\nVisit http://vertx.io/ for more information.'
     ));
 
+    this.log('');
+
     var prompts = [{
-      type: 'confirm',
-      name: 'someOption',
-      message: 'Would you like to enable this option?',
-      default: true
+      type: 'list',
+      name: 'templateType',
+      message: 'Which template do you want to use?',
+      choices: ['Standard Template', 'Gradle Template', 'Maven Template'],
+      default: 0
     }];
 
-    this.prompt(prompts, function (props) {
-      this.someOption = props.someOption;
-
+    this.prompt(prompts, function(selection) {
+      this.templateType = selection.templateType;
       done();
     }.bind(this));
   },
 
   writing: {
-    app: function () {
-      this.dest.mkdir('app');
-      this.dest.mkdir('app/templates');
-
-      this.src.copy('_package.json', 'package.json');
-      this.src.copy('_bower.json', 'bower.json');
-    },
-
-    projectfiles: function () {
-      this.src.copy('editorconfig', '.editorconfig');
-      this.src.copy('jshintrc', '.jshintrc');
+    template: function() {
+      switch (this.templateType) {
+        case 'Standard Template':
+          this.log('Standard Template not implented yet!');
+          break;
+        case 'Gradle Template':
+          this._gradle();
+          break;
+        case 'Maven Template':
+          this.log('Standard Template not implented yet!');
+          break;
+        default:
+          this.log('Selected Option invalid!');
+          break;
+      }
     }
+
   },
 
-  end: function () {
-    this.installDependencies();
+  _gradle: function() {
+    this.extract('https://github.com/vert-x/vertx-gradle-template/archive/master.zip', this.destinationRoot(), function(error) {
+      if (error !== undefined) {
+        this.log('error: ' + error);
+      }
+    });
   }
+
 });
 
 module.exports = VertxGenerator;
