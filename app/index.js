@@ -25,10 +25,21 @@ var VertxGenerator = yeoman.generators.Base.extend({
       message: 'Which template do you want to use?',
       choices: ['Standard Template', 'Gradle Template', 'Maven Template'],
       default: 0
+    }, {
+      type: 'input',
+      name: 'owner',
+      message: 'What\'s your name?'
+    }, {
+      type: 'input',
+      name: 'appName',
+      message: 'What\'s the name of this project?',
+      default: this.destinationRoot().slice(this.destinationRoot().lastIndexOf('/')+1)
     }];
 
-    this.prompt(prompts, function(selection) {
-      this.templateType = selection.templateType;
+    this.prompt(prompts, function(answers) {
+      this.templateType = answers.templateType;
+      this.owner = answers.owner;
+      this.appName = answers.appName;
       done();
     }.bind(this));
   },
@@ -54,11 +65,16 @@ var VertxGenerator = yeoman.generators.Base.extend({
   },
 
   _gradle: function() {
+    var that = this;
     this.extract('https://github.com/vert-x/vertx-gradle-template/archive/master.zip', this.destinationRoot(), function(error) {
-      if (error !== undefined) {
-        this.log('error: ' + error);
-      }
+      if (error !== undefined) {}
+      var filePath = that.destinationRoot() + '/gradle.properties';
+      var properties = that.readFileAsString(filePath);
+      properties = properties.replace(/modowner=[a-z0-9.,]*\n/i, 'modowner=' + that.owner + '\n');
+      properties = properties.replace(/modname=[a-z0-9.,\-]*\n/i, 'modname=' + that.appName + '\n');
+      that.writeFileFromString(properties, filePath);
     });
+
   }
 
 });
