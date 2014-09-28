@@ -3,6 +3,8 @@
 // var path = require('path');
 var yeoman = require('yeoman-generator');
 var yosay = require('yosay');
+var shelljs = require('shelljs');
+
 
 var VertxGenerator = yeoman.generators.Base.extend({
   initializing: function() {
@@ -33,7 +35,7 @@ var VertxGenerator = yeoman.generators.Base.extend({
       type: 'input',
       name: 'appName',
       message: 'What\'s the name of this project?',
-      default: this.destinationRoot().slice(this.destinationRoot().lastIndexOf('/')+1)
+      default: this.destinationRoot().slice(this.destinationRoot().lastIndexOf('/') + 1)
     }];
 
     this.prompt(prompts, function(answers) {
@@ -54,7 +56,7 @@ var VertxGenerator = yeoman.generators.Base.extend({
           this._gradle();
           break;
         case 'Maven Template':
-          this.log('Standard Template not implented yet!');
+          this._maven();
           break;
         default:
           this.log('Selected Option invalid!');
@@ -75,6 +77,18 @@ var VertxGenerator = yeoman.generators.Base.extend({
       that.writeFileFromString(properties, filePath);
     });
 
+  },
+
+  _maven: function() {
+    if (!shelljs.which('mvn')) {
+      this.log('Sorry, you need to install Maven first!');
+      this.log('Check out: http://maven.apache.org/download.cgi#Installation or use your Software manager.');
+    } else {
+      var atVersion = '2.0.8-final';
+      shelljs
+        .exec('mvn archetype:generate -DinteractiveMode=false -DarchetypeGroupId=io.vertx -DarchetypeArtifactId=vertx-maven-archetype -DarchetypeVersion='+
+        atVersion+' -DgroupId=com.foo.bar -DartifactId='+this.appName+' -Dversion=1.0');
+    }
   }
 
 });
